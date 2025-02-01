@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Importa a fonte Montserrat -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    /* Define o fundo para evitar áreas brancas inesperadas */
+    html, body {
+      height: 100%;
+      font-family: 'Montserrat', sans-serif;
+      background-color: #fdc75f;
+    }
+    
+    /* Cabeçalho ocupa 100% da largura */
+    header {
+      width: 100%;
+      background-color: #fdc75f; /* cor do cabeçalho */
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #000000;
+      color: #000000;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 2000;
+    }
+    
+    /* Área esquerda do cabeçalho */
+    #header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    /* Ícone de menu */
+    #menu-toggle {
+      font-size: 24px;
+      cursor: pointer;
+    }
+    
+    /* Título */
+    #header-title {
+      font-size: 24px;
+      font-weight: 600;
+    }
+    
+    /* Espaço para o logo da Invest RS */
+    #invest-logo img {
+      height: 25px;
+    }
+    
+    /* Seletor de idiomas */
+    #language-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    #language-selector img {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      transition: border 0.2s;
+    }
+    
+    #language-selector img:hover {
+      border: 1px solid #000000;
+    }
+    
+    /* Container geral do conteúdo (abaixo do cabeçalho) */
+    #container {
+      position: relative;
+      height: calc(100% - 60px); /* subtrai a altura do cabeçalho (60px) */
+      margin-top: 60px; /* altura do cabeçalho */
+      background-color: #fdc75f; /* garante que o fundo seja consistente */
+    }
+    
+    /* Sidebar (menu lateral) */
+    #sidebar {
+      position: fixed;
+      font-size: 14px;
+      font-style: normal;
+      top: 60px; /* logo abaixo do cabeçalho */
+      left: 0;
+      bottom: 0;
+      width: 120px;
+      background-color: #048042; /* verde */
+      color: #ffffff;
+      transition: transform 0.3s ease;
+      z-index: 1000;
+      text-align: center;
+    }
+    
+    /* Quando colapsado, move a sidebar para fora da tela */
+    #sidebar.collapsed {
+      transform: translateX(-120px);
+    }
+
+    #sidebar img{
+      margin: 0 auto;
+    }
+    
+    /* Lista de itens do menu */
+    #menu-items {
+      list-style: none;
+      padding: 10px 0 0 0;
+    }
+    
+    #menu-items li {
+      margin: 10px 0;
+      text-align: center;
+    }
+    
+    #menu-items li a {
+      text-decoration: none;
+      color: #ffffff;
+      display: block;
+      padding: 5px;
+      transition: background-color 0.2s;
+    }
+    
+    /* Ao passar o mouse, muda para um verde claro */
+    #menu-items li a:hover {
+      background-color: #8fc93a;
+    }
+    
+    .menu-icon {
+      display: block;
+      font-size: 30px;
+      margin-bottom: 5px;
+      height: 40px;
+      margin: 0 auto; /* centraliza o elemento */
+    }
+
+    .menu-icon img {
+      display: block;
+      text-align: center;
+      height: 40px;   /* Define a altura desejada */
+      width: auto;    /* Mantém a proporção original */
+    }
+    
+    /* Conteúdo principal */
+    #content {
+      transition: margin-left 0.3s ease;
+      margin-left: 120px; /* espaço para a sidebar */
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background-color: #fdc75f;
+    }
+    
+    /* Quando a sidebar está oculta, o conteúdo ocupa toda a largura */
+    #content.full {
+      margin-left: 0;
+    }
+    
+    /* Área do iframe */
+    #iframe-container {
+      flex: 1;
+    }
+    
+    #iframe-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+  </style>
+</head>
+<body>
+  <!-- Cabeçalho ocupando 100% da largura -->
+  <header>
+    <div id="header-left">
+      <!-- Ícone de menu para esconder/mostrar o menu -->
+      <div id="menu-toggle" onclick="toggleSidebar()">☰</div>
+      <div id="header-title">RS EM DADOS</div>
+      <div id="invest-logo">
+        <img src="investrs-logo.png" alt="Invest RS">
+      </div>
+    </div>
+    <!-- Seletor de idiomas -->
+    <div id="language-selector">
+      <img src="brasil.png" alt="Português" title="Português" onclick="setLanguage('pt')">
+      <img src="eua.png" alt="Inglês" title="Inglês" onclick="setLanguage('en')">
+      <img src="espanha.png" alt="Espanhol" title="Espanhol" onclick="setLanguage('es')">
+    </div>
+  </header>
+  
+  <!-- Container do conteúdo (abaixo do cabeçalho) -->
+  <div id="container">
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <ul id="menu-items">
+        <li>
+          <a href="#" onclick="loadPage('maps.html')">
+            <span class="menu-icon"><img src="./maps.png" /></span>
+            <span class="menu-label" id="menu-maps">Mapas</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" onclick="loadPage('dashboards.html')">
+            <span class="menu-icon"><img src="./dashboards.png" /></span>
+            <span class="menu-label" id="menu-dashboards">Dashboards</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" onclick="loadPage('businessPanel.html')">
+            <span class="menu-icon"><img src="./businessPanel.png" /></span>
+            <span class="menu-label" id="menu-business">Painel de Negócios</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" onclick="loadPage('reports.html')">
+            <span class="menu-icon"><img src="./reports.png" /></span>
+            <span class="menu-label" id="menu-reports">Relatórios</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- Conteúdo principal -->
+    <div id="content">
+      <div id="iframe-container">
+        <iframe id="mainFrame" src="maps.html"></iframe>
+      </div>
+    </div>
+  </div>
+  
+  <script src="panelScript.js"></script>
+
+</body>
+</html>
