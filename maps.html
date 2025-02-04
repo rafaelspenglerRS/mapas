@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RS em Dados</title>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.tailwindcss.com"></script>
+	
     <style>
         #mapContainer {
             height: 100vh;
@@ -77,6 +79,25 @@
             height: 20px;
             margin-right: 5px;
         }
+
+		.legendHidro {
+			position: absolute;
+			width: auto;
+			bottom: 10px;
+			right: 10px;
+			background: white;
+			padding: 10px;
+			border-radius: 5px;
+			box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+			font-size: 12px;
+			display: none; /* Inicialmente oculta */
+			z-index: 1001; /* Garante que a legenda fique sobre o mapa */
+		}
+        .legendHidro img {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -101,6 +122,7 @@
 					<h3 class="text-sm font-semibold">Infraestrutura</h3>
                 	<label><input type="checkbox" name="airports" id="airports"> Aeroportos</label>
 					<label><input type="checkbox" name="aerodrome" id="aerodrome"> Aeródromos</label>
+					<label><input type="checkbox" name="hidrovia" id="hidrovia"> Hidrovias</label>
                 </div>
 				
             </div>
@@ -119,13 +141,16 @@
             <p><img src="./img/airAsphalt.png" alt="Asfalto"> Asfalto</p>
             <p><img src="./img/airConcrete.png" alt="Concreto"> Concreto</p>
         </div>
+		<div class="legendHidro">
+            <p><strong>Legenda</strong></p><br />
+            <p><img src="./img/eclusa.png" alt="Eclusa"> Eclusa</p>
+            <p style="color: blue">---- Navegável</p>
+			<p style="color: orangered">---- Navegação inexpressiva</p>
+        </div>
     </div>
-    <script>
-
-	
-
+    
+	<script>
         var map = L.map('mapContainer').setView([-30.39183, -53.22876], 7);
-
 
         var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -134,203 +159,27 @@
         var geoJsonLayer;
         var selectedLayer = null;
         
+	</script>
 
+	<script src="./script/geoJSON.js"></script>
+	
+	<script>
+		var currentGeoJson = regionFiles.municipalities;
+	</script>
 
-
-
-
-		// geoJSONs
-		var regionFiles = {
-            municipalities: 'https://raw.githubusercontent.com/rafaelspenglerRS/mapas/main/regioesGeograficasRS2017.geojson',
-            intermediate: 'https://raw.githubusercontent.com/rafaelspenglerRS/mapas/main/regioesIntermediariasRS2017.geojson',
-            immediate: 'https://raw.githubusercontent.com/rafaelspenglerRS/mapas/main/regioesImediatasRS2017.geojson'
-        };
-		var infraFiles = {
-			airports: 'https://raw.githubusercontent.com/rafaelspenglerRS/mapas/main/airportsRS20241.geojson',
-			aerodrome: 'https://raw.githubusercontent.com/rafaelspenglerRS/mapas/main/aerodromosRS2024.geojson'
-		}
-        var currentGeoJson = regionFiles.municipalities;
-        
-		
-		// função para exibição das cidades
-		function loadGeoJSON(geojsonFile, nameProperty) {
-            if (geoJsonLayer) {
-                map.removeLayer(geoJsonLayer);
-            }
-            fetch(geojsonFile)
-                .then(response => response.json())
-                .then(data => {
-                    geoJsonLayer = L.geoJSON(data, {
-                        style: () => ({ color: '#048042', weight: 1, fillOpacity: 0.7 }),
-                        onEachFeature: function (feature, layer) {
-                            let nome = feature.properties[nameProperty] || "Desconhecido";
-                            layer.on({
-                                mouseover: function (e) {
-									if (e.target.setStyle && e.target.feature && e.target.feature.geometry.type.includes("Polygon")) {
-										e.target.setStyle({ color: '#fdc75f', weight: 3, fillOpacity: 0.8 });
-										e.target.bindTooltip(nome, { permanent: false, direction: "top" }).openTooltip();
-									}
-								},
-                                mouseout: function (e) {
-                                    if (e.target.setStyle && e.target.feature && e.target.feature.geometry.type.includes("Polygon")) {
-										if (selectedLayer !== e.target) {
-											e.target.setStyle({ color: '#048042', weight: 1, fillOpacity: 0.7 });
-										}
-									}
-                                },
-                                click: function (e) {
-                                    if (selectedLayer) {
-                                        selectedLayer.setStyle({ color: '#048042', weight: 1, fillOpacity: 0.7 });
-                                    }
-                                    selectedLayer = e.target;
-                                    e.target.setStyle({ color: '#ff0000', weight: 2, fillOpacity: 0.9 });
-                                    let nomeFormatado = nome.toLowerCase().replace(/ /g, '-');
-                                    let ibgeLink = `https://cidades.ibge.gov.br/brasil/rs/${nomeFormatado}/panorama`;
-                                    L.popup({ closeButton: false, autoPan: true })
-                                        .setLatLng(e.latlng)
-                                        .setContent(`<b>${nome}</b><br><a href='${ibgeLink}' target='_blank'>Mais informações</a>`)
-                                        .openOn(map);
-                                }
-                            });
-                        }
-                    }).addTo(map);
-                });
-        }
-        
-		
-		// exibição dos aeródromos  
-		var aerodromeLayer = L.layerGroup().addTo(map);
-        var icons = {
-			"Asfalto": L.icon({ iconUrl: './img/aerAsphalt.png', iconSize: [32, 32], iconAnchor: [16, 32] }),
-			"Concreto": L.icon({ iconUrl: './img/aerConcrete.png', iconSize: [32, 32], iconAnchor: [16, 32] }),
-			"Grama": L.icon({ iconUrl: './img/aerGrass.png', iconSize: [32, 32], iconAnchor: [16, 32] }),
-			"Saibro": L.icon({ iconUrl: './img/aerClay.png', iconSize: [32, 32], iconAnchor: [16, 32] }),
-			"Terra": L.icon({ iconUrl: './img/aerDirt_.png', iconSize: [32, 32], iconAnchor: [16, 32] }),
-			"default": L.icon({ iconUrl: './img/aerUnknown_.png', iconSize: [32, 32], iconAnchor: [16, 32] })
-		};
-
-        function loadMarkersAer(geojsonFile) {
-			fetch(geojsonFile)
-				.then(response => response.json())
-				.then(data => {
-					aerodromeLayer.clearLayers();
-					L.geoJSON(data, {
-						filter: function (feature) {
-							return feature.properties.superfíci !== undefined; // Apenas adiciona aeroportos com superfície definida
-						},
-						pointToLayer: function (feature, latlng) {
-							var surfaceType = feature.properties.superfíci || "default";
-							var icone = icons[surfaceType] || icons["default"];
-  
-							//|| icons["default"];
-							
-							// Criar um marcador com ícone personalizado SEM o padrão do Leaflet
-							return L.marker(latlng, {
-								icon: icone,
-								interactive: true, // Permite que os ícones sejam clicáveis
-								keyboard: false // Remove a interação com o teclado
-							}).bindPopup(
-								`<b>${feature.properties.NOME}</b><br>Superfície: ${surfaceType}`
-							);
-						}
-					}).addTo(aerodromeLayer);
-				});
-		}
-        document.getElementById('aerodrome').addEventListener('change', function (event) {
-            var legend = document.querySelector('.legend');
-            if (event.target.checked) {
-                loadMarkersAer('https://raw.githubusercontent.com/rafaelspenglerRS/mapas/main/aerodromosRS2024.geojson');
-                map.addLayer(aerodromeLayer);
-                legend.style.display = 'block';
-            } else {
-                // Só remover layer se explicitamente desativado
-				if (map.hasLayer(aerodromeLayer)) {
-					map.removeLayer(aerodromeLayer);
-				}
-				legend.style.display = 'none';
-			}
-        });
-
-
-
-
-
-		// exibição dos aeroportos  
-		var airportLayer = L.layerGroup().addTo(map);
-        var iconsAir = {
-			"Asfalto": L.icon({ iconUrl: './img/airAsphalt.png', iconSize: [32, 32], iconAnchor: [16, 32] }),
-			"Concreto": L.icon({ iconUrl: './img/airConcrete.png', iconSize: [32, 32], iconAnchor: [16, 32] })
-		};
-
-        function loadMarkersAir(geojsonFile) {
-			fetch(geojsonFile)
-				.then(response => response.json())
-				.then(data => {
-					airportLayer.clearLayers();
-					L.geoJSON(data, {
-						filter: function (feature) {
-							return feature.properties.superfíci !== undefined; // Apenas adiciona aeroportos com superfície definida
-						},
-						pointToLayer: function (feature, latlng) {
-							var surfaceType = feature.properties.superfíci || "default";
-							var iconeAir = iconsAir[surfaceType] || icons["default"];
-  
-							//|| icons["default"];
-							
-							// Criar um marcador com ícone personalizado SEM o padrão do Leaflet
-							return L.marker(latlng, {
-								icon: iconeAir,
-								interactive: true, // Permite que os ícones sejam clicáveis
-								keyboard: false // Remove a interação com o teclado
-							}).bindPopup(
-								`<b>${feature.properties.NOME}</b><br>Superfície: ${surfaceType}`
-							);
-						}
-					}).addTo(airportLayer);
-				});
-		}
-        document.getElementById('airports').addEventListener('change', function (event) {
-            var legendAir = document.querySelector('.legendAir');
-            if (event.target.checked) {
-                loadMarkersAir('https://raw.githubusercontent.com/rafaelspenglerRS/mapas/main/aeroportosRS20241.geojson');
-                map.addLayer(airportLayer);
-                legendAir.style.display = 'block';
-            } else {
-                // Só remover layer se explicitamente desativado
-				if (map.hasLayer(airportLayer)) {
-					map.removeLayer(airportLayer);
-				}
-				legendAir.style.display = 'none';
-			}
-        });
-
-
+	<!-- chama a função para que os municípios sejam carregados -->
+	<script src="./script/territorio.js"></script>
+			
+	
+	<script>
 		loadGeoJSON(currentGeoJson, "NOME");
-        
-		
+	</script>
 
-		document.getElementById('regionsIntermediate').addEventListener('change', function () {
-            loadGeoJSON(regionFiles.intermediate, "nome_rgint");
-        });
-        document.getElementById('regionsImmediate').addEventListener('change', function () {
-            loadGeoJSON(regionFiles.immediate, "nome_rgi");
-        });
-        document.getElementById('regionsMunicipalities').addEventListener('change', function () {
-            loadGeoJSON(regionFiles.municipalities, "NOME");
-        });
-		document.getElementById('airports').addEventListener('change', function () {
-			if (this.checked) {
-				loadMarkersAir(infraFiles.airports);
-			} else {
-				airportLayer.clearLayers();
-			}
-		});
-		document.getElementById('aerodrome').addEventListener('change', function () {
-			if (this.checked) {
-				loadMarkersAer(infraFiles.aerodrome);
-			} else {
-				aerodromeLayer.clearLayers();
-			}
-		});
+<!-- getElementById -->
+<script src="./script/load.js"></script>
 
-    </script>
+
+<!-- Scripts por indicador/variável -->
+<script src="./script/aerodromo.js"></script>
+<script src="./script/aeroporto.js"></script>
+<script src="./script/hidrovia.js"></script>
