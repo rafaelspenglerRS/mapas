@@ -1,46 +1,74 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>alegretle</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossorigin=""/>
-    <link rel="stylesheet" href="estilos.css">
-    
+  <meta charset="UTF-8">
+  <title>RS em Dados 🧉</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Importa a fonte Montserrat -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/index.css"> <!-- Importa o CSS separado -->
 </head>
 <body>
-    <h1 style="font-size: 2.8em; text-align: center; margin-bottom: 20px;">
-        <span style="color: #048042;">ale</span><span style="color: #C2374B;">gre</span><span style="color: #FEC75F;">tle</span>
-    </h1>
-
-    <div id="map"></div>
-
-    <div id="controls-and-guesses-container">
-        <div id="game-controls">
-            <input type="text" id="guess-input" placeholder="Digite o nome de um município..." autocomplete="off">
-            <div id="suggestions-container">
-                <ul id="suggestions-list-autocomplete"></ul>
-            </div>
-            <button id="guess-button">Adivinhar!</button>
-            <!-- <button id="new-game-button">Novo Jogo</button> -->
-        </div>
-
-        <div id="guesses-area">
-            <h3>Tentativas:</h3>
-            <ul id="guesses-list">
-                {/* As tentativas feitas aparecem aqui */}
-            </ul>
-        </div>
+  <!-- Cabeçalho ocupando 100% da largura -->
+  <header>
+    <div id="header-left">
+      <!-- Ícone de menu para esconder/mostrar o menu -->
+      <div id="menu-toggle" onclick="toggleSidebar()">☰</div>
+      <div id="header-title">RS EM DADOS </div>
+      <div id="invest-logo">
+        <img src="./img/investRS_logoBranco1.png" alt="Invest RS" >
+      </div>
     </div>
+    <!-- Seletor de idiomas -->
+    <div id="language-selector">
+      <img src="./img/pt.png" alt="Português" title="Português" onclick="setLanguage('pt')">
+      <img src="./img/en.png" alt="Inglês" title="English" onclick="setLanguage('en')">
+      <img src="./img/es.png" alt="Espanhol" title="Español" onclick="setLanguage('es')">
+    </div>
+  </header>
+  
 
-   
+  <!-- Container do conteúdo (abaixo do cabeçalho) -->
+  <div id="container">
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <ul id="menu-items">
+        <li>
+          <a href="#" onclick="loadPage('maps.html')">
+            <span class="menu-icon"><img src="./img/loc2.png" /></span>
+            <span class="menu-label" id="menu-maps">Mapas</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" onclick="loadPage('https://app.powerbi.com/view?r=eyJrIjoiNWVlMWU2ODAtNWJlMS00NTk1LWJkNTgtMTFmYWM4NzAwN2RhIiwidCI6IjIxZTk0YjViLTA0OGItNDZlOS04ODkxLTljODcxNmJkNWI4NSJ9')">
+            <span class="menu-icon"><img src="./img/barr.png" /></span>
+            <span class="menu-label" id="menu-dashboards">Dashboards</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" onclick="loadPage('businessPanel.html')">
+            <span class="menu-icon"><img src="./img/dash2.png" /></span>
+            <span class="menu-label" id="menu-business">Painel de Negócios</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" onclick="loadPage('reports.html')">
+            <span class="menu-icon"><img src="./img/papel-em-branco.png" /></span>
+            <span class="menu-label" id="menu-reports">Relatórios</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- Conteúdo principal -->
+    <div id="content">
+      <div id="iframe-container">
+        <iframe id="mainFrame" src="maps.html" title="mapa"></iframe>
+      </div>
+    </div>
+  </div>
+  
+  <script src="panelScript.js"></script>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-            crossorigin=""></script>
-    <script src="territorio.js"></script>
-    <script src="jogo.js"></script>
 </body>
 </html>
